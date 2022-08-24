@@ -16,8 +16,16 @@ public class UserController {
     @Autowired
     AccountDao dao;
 
+//    @PreAuthorize("hasRole('USER')")
     @RequestMapping(path = "/balance/{id}", method = RequestMethod.GET)
     public BigDecimal requestBalance(@PathVariable int id){
         return dao.requestBalance(id);
     }
+
+    @RequestMapping(path = "/transfer/{idFrom}{isTo}", method = RequestMethod.PUT)
+    public boolean transferBucks(@PathVariable int idFrom, @RequestBody int idTo, BigDecimal amount){
+        return true;
+    }
 }
+
+

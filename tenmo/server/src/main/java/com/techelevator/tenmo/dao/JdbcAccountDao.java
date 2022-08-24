@@ -24,4 +24,13 @@ public class JdbcAccountDao implements AccountDao{
         }
         return null;
     }
+
+    @Override
+    public boolean transferBucks(int idFrom, int idTo, BigDecimal amount) {
+        String sql = "SELECT balance FROM account WHERE user_id = ?";
+        BigDecimal balanceFrom = jdbcTemplate.queryForObject(sql, BigDecimal.class, idFrom);
+        // if (BigDec amountToTransfer >= balance &&  int userIdToTransfer != int userIdTooRecieve)
+
+        return false;
+    }
 }
