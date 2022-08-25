@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.TransferDao;
+import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +20,8 @@ public class TransferController {
     private final String API_PATH_TRANSFER = "http://localhost:8080/";
     @Autowired
     TransferDao transferDao;
+    @Autowired
+    UserDao userDao;
 
     @RequestMapping(path = "/transfer", method = RequestMethod.POST)
     public boolean transferBucks(@RequestBody Transfer transfer){
@@ -26,7 +29,8 @@ public class TransferController {
     }
 
     @RequestMapping(path = "/transfer", method = RequestMethod.GET)
-    public List<Transfer> getMyTransfers(@RequestBody int userId){
+    public List<Transfer> getMyTransfers(Principal principal){
+        int userId = userDao.findIdByUsername(principal.getName());
         return transferDao.getMyTransfers(userId);
     }
 

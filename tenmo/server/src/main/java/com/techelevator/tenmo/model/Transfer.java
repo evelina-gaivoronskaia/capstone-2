@@ -59,4 +59,16 @@ public class Transfer {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return "Transfer{" +
+                "transferId=" + transferId +
+                ", idFrom=" + idFrom +
+                ", idTo=" + idTo +
+                ", amount=" + amount +
+                ", type='" + type + '\'' +
+                ", status='" + status + '\'' +
+                '}';
+    }
 }

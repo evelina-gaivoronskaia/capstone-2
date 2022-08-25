@@ -28,6 +28,7 @@ public class JdbcTransferDao implements TransferDao{
         String sql = "SELECT balance FROM account WHERE user_id = ?";
         BigDecimal balanceFrom = jdbcTemplate.queryForObject(sql, BigDecimal.class, transfer.getIdFrom());
         BigDecimal balanceTo = jdbcTemplate.queryForObject(sql, BigDecimal.class, transfer.getIdTo());
+        System.out.println(transfer);
         if (transfer.getAmount().compareTo(balanceFrom) <= 0 && transfer.getIdTo() != transfer.getIdFrom()){
             String sql1 = "UPDATE account SET balance = ? WHERE user_id = ?";
             jdbcTemplate.update(sql1, balanceFrom.subtract(transfer.getAmount()), transfer.getIdFrom());
@@ -50,7 +51,7 @@ public class JdbcTransferDao implements TransferDao{
     }
 
     @Override
-    public List<Transfer> getMyTransfers(@RequestBody int userId) {
+    public List<Transfer> getMyTransfers(int userId) {
         List<Transfer> myTransfers = new ArrayList<>();
         String sql = "SELECT transfer_id, id_from, id_to, amount, type, status " +
                 "FROM transfer WHERE id_from = ? OR id_to = ?";
