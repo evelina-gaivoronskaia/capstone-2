@@ -9,7 +9,6 @@ public class Transfer {
     private int idFrom;
     private int idTo;
     private BigDecimal amount;
-    private LocalDateTime dateTime;
     private String type;
     private String status;
 
@@ -43,14 +42,6 @@ public class Transfer {
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
-    }
-
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
-
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
     }
 
     public String getType() {
