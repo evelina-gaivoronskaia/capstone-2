@@ -12,6 +12,4 @@ public interface AccountDao {
     BigDecimal requestBalance(int userId);
 
     List<Account> getAllAccounts();
-
-    boolean transferBucks(int idFrom, int idTo, BigDecimal amount);
 }
