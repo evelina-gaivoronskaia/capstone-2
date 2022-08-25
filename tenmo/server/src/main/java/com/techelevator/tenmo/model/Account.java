@@ -1,10 +1,13 @@
 package com.techelevator.tenmo.model;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public class Account {
     private int accountId;
     private int userId;
+    @Positive
     private BigDecimal balance;
 
     public int getAccountId() {

@@ -1,14 +1,18 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Account;
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 import org.springframework.boot.autoconfigure.quartz.QuartzProperties;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,10 +56,20 @@ public class JdbcAccountDao implements AccountDao{
         BigDecimal balanceTo = jdbcTemplate.queryForObject(sql, BigDecimal.class, idTo);
          if (amount.compareTo(balanceFrom) >= 0 && idTo != idFrom){
              String sql1 = "UPDATE account SET balance = ? WHERE user_id = ?";
-          jdbcTemplate.update(sql1, balanceFrom.subtract(amount), idFrom);
+             jdbcTemplate.update(sql1, balanceFrom.subtract(amount), idFrom);
+             jdbcTemplate.update(sql1, balanceTo.add(amount), idTo);
 
-          jdbcTemplate.update(sql1, balanceTo.add(amount), idTo);
-            return true;
+             String sql2 = "INSERT INTO transfer (id_from, id_to, amount, date_time) " +
+                     "VALUES (?, ?, ?, ?) RETURNING transfer_id";
+             Transfer transfer = new Transfer();
+             LocalDateTime dateTime = LocalDateTime.now();
+             Integer transferId;
+             try {
+                 transferId = jdbcTemplate.queryForObject(sql2, Integer.class, idFrom, idTo, amount, dateTime);
+             } catch (DataAccessException ex){
+                 return false;
+             }
+             return true;
          }
 
         return false;
