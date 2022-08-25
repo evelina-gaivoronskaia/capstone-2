@@ -35,3 +35,12 @@ CREATE TABLE account (
 
 
 COMMIT;
+ROLLBACK;
+
+SELECT * FROM tenmo_user;
+SELECT * FROM account;
+
+DELETE FROM tenmo_user;
+
+SELECT account.user_id, account_id FROM account
+                JOIN tenmo_user ON account.user_id = tenmo_user.user_id;

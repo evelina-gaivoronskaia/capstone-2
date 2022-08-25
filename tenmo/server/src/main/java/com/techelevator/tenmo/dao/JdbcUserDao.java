@@ -82,14 +82,7 @@ public class JdbcUserDao implements UserDao {
     }
 
 
-    private Account mapRowToAccount(SqlRowSet rs){
-        Account account = new Account();
-        account.setAccountId(rs.getInt("account_id"));
-        account.setUserId(rs.getInt("user_id"));
-        account.setBalance(rs.getBigDecimal("balance"));
-        return account;
 
-    }
 
     private User mapRowToUser(SqlRowSet rs) {
         User user = new User();
