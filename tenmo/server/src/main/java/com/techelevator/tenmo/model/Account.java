@@ -10,6 +10,7 @@ public class Account {
     @Positive
     private BigDecimal balance;
 
+
     public int getAccountId() {
         return accountId;
     }
