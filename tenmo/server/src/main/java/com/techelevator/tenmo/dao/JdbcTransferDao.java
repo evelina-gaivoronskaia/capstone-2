@@ -5,12 +5,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
-import java.security.Principal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +14,6 @@ import java.util.List;
 public class JdbcTransferDao implements TransferDao{
 
     JdbcTemplate jdbcTemplate;
-
     public JdbcTransferDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -62,6 +57,22 @@ public class JdbcTransferDao implements TransferDao{
         return myTransfers;
     }
 
+   @Override
+    public Transfer getTransferByTransferId(int transferId) {
+       Transfer transfer = new Transfer();
+       String sql = "SELECT transfer_id, id_from, id_to, amount, type, status FROM transfer " +
+                "WHERE transfer_id = ?";
+       try {
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
+            if (results.next()) {
+                transfer = mapToRowTransfer(results);
+            }
+        } catch (DataAccessException ex){
+            System.out.println("nope");
+        }
+        return transfer;
+    }
+
     private Transfer mapToRowTransfer(SqlRowSet srs){
         Transfer transfer = new Transfer();
         transfer.setTransferId(srs.getInt("transfer_id"));
@@ -71,7 +82,6 @@ public class JdbcTransferDao implements TransferDao{
         transfer.setType(srs.getString("type"));
         transfer.setStatus(srs.getString("status"));
         return transfer;
-
     }
 
 }

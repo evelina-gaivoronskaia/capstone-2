@@ -5,10 +5,7 @@ import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
@@ -34,4 +31,8 @@ public class TransferController {
         return transferDao.getMyTransfers(userId);
     }
 
+    @RequestMapping(path = "/transfer/{transferId}", method = RequestMethod.GET)
+    public Transfer getTransferByTransferId(@PathVariable int transferId){
+        return transferDao.getTransferByTransferId(transferId);
+    }
 }

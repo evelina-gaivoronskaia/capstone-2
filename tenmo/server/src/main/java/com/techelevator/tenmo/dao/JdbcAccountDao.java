@@ -48,12 +48,6 @@ public class JdbcAccountDao implements AccountDao{
         return accountList;
     }
 
-
-
-//    private Account mapRowToAccountDTO(SqlRowSet rs){
-//        AccountDTO accountDto = new AccountDTO();
-//    }
-
     private Account mapRowToAccount(SqlRowSet rs){
         Account account = new Account();
         account.setAccountId(rs.getInt("account_id"));
