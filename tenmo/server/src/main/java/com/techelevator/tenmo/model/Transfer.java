@@ -12,6 +12,7 @@ public class Transfer {
     private String type;
     private String status;
 
+
     public int getTransferId() {
         return transferId;
     }
