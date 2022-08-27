@@ -26,9 +26,9 @@ public class JdbcAccountDao implements AccountDao{
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public JdbcAccountDao(DataSource dataSource){
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }
+//    public JdbcAccountDao(DataSource dataSource){
+//        this.jdbcTemplate = new JdbcTemplate(dataSource);
+//    }
 
     @Override
     public BigDecimal requestBalance(int userId) {

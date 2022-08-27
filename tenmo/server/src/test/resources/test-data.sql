@@ -60,7 +60,7 @@ VALUES ('1001', 1000.00),
     ('1002', 1000.00);
 
 INSERT INTO transfer (id_from, id_to, amount, type, status)
-VALUES (1001, 1002, 100.00, 'send', 'Accepted'),
-(1002, 1001, 50.00, 'send', 'Accepted');
+VALUES (1001, 1002, 100.00, 'send', 'Approved'),
+(1002, 1001, 50.00, 'send', 'Approved');
 
 COMMIT;

@@ -21,8 +21,8 @@ public class JdbcAccountDaoTests extends BaseDaoTests{
     @Before
     public void setup() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        sut = new JdbcAccountDao(dataSource);
-        helper = new JdbcUserDao(dataSource);
+        sut = new JdbcAccountDao(jdbcTemplate);
+        helper = new JdbcUserDao(jdbcTemplate);
     }
 
     @Test
@@ -44,6 +44,6 @@ public class JdbcAccountDaoTests extends BaseDaoTests{
     @Test
     public void getAllAccounts_return_list_ofPopulatedAccounts(){
         List<Account> actual = sut.getAllAccounts();
-        Assert.assertEquals(0, actual.size());
+        Assert.assertEquals(2, actual.size());
     }
 }

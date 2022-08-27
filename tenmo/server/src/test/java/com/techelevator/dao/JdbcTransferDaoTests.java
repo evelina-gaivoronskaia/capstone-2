@@ -21,7 +21,23 @@ public class JdbcTransferDaoTests extends BaseDaoTests{
     @Before
     public void setup() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        sut = new JdbcTransferDao(dataSource);
+        sut = new JdbcTransferDao(jdbcTemplate);
+    }
+
+    @Test
+    public void getTransferByTransferId_returns_transferObject(){
+        Transfer transfer1 = new Transfer();
+        BigDecimal amount = new BigDecimal("50.00");
+        transfer1.setTransferId(3002);
+        transfer1.setIdFrom(1002);
+        transfer1.setIdTo(1001);
+        transfer1.setAmount(amount);
+        transfer1.setType("send");
+        transfer1.setStatus("Approved");
+        sut.transferBucks(transfer1);
+
+        Transfer actual = sut.getTransferByTransferId(3002);
+        assertTransfersMatch(transfer1, actual);
     }
 
     @Test
@@ -36,7 +52,7 @@ public class JdbcTransferDaoTests extends BaseDaoTests{
         transfer.setStatus("Approved");
         sut.transferBucks(transfer);
 
-        Transfer actual = sut.getTransferByTransferId(transfer.getTransferId());
+        Transfer actual = sut.getTransferByTransferId(3003);
 
         assertTransfersMatch(transfer, actual);
     }
@@ -53,21 +69,6 @@ public class JdbcTransferDaoTests extends BaseDaoTests{
         Assert.assertEquals(0, transferList.size());
     }
 
-    @Test
-    public void getTransferByTransferId_returns_transferObject(){
-        Transfer transfer = new Transfer();
-        BigDecimal amount = new BigDecimal("100.00");
-        transfer.setTransferId(3003);
-        transfer.setIdFrom(1001);
-        transfer.setIdTo(1002);
-        transfer.setAmount(amount);
-        transfer.setType("send");
-        transfer.setStatus("Approved");
-        sut.transferBucks(transfer);
-
-        Transfer actual = sut.getTransferByTransferId(3003);
-        assertTransfersMatch(transfer, actual);
-    }
 
     @Test
     public void getTransferByTransferId_returns_exception(){

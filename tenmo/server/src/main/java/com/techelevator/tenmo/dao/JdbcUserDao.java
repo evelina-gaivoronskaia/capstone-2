@@ -23,9 +23,9 @@ public class JdbcUserDao implements UserDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public JdbcUserDao(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }
+//    public JdbcUserDao(DataSource dataSource) {
+//        this.jdbcTemplate = new JdbcTemplate(dataSource);
+//    }
 
     @Override
     public int findIdByUsername(String username) {

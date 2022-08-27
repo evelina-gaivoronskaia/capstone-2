@@ -36,8 +36,13 @@ public class TransferController {
         return transferDao.getTransferByTransferId(transferId);
     }
 
-    @RequestMapping(path = "/transfer", method = RequestMethod.POST)
+    @RequestMapping(path = "/transfer/request", method = RequestMethod.POST)
     public boolean requestTransfer(@RequestBody Transfer transfer){
         return transferDao.requestTransfer(transfer);
+    }
+
+    @RequestMapping(path = "/transfer/approve", method = RequestMethod.POST)
+    public boolean approveTransfer(@RequestBody Transfer transfer){
+        return transferDao.approveTransfer(transfer);
     }
 }
