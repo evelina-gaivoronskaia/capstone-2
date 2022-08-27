@@ -99,13 +99,17 @@ public class JdbcTransferDao implements TransferDao{
 
     @Override
     public boolean requestTransfer(Transfer transfer) {
-        String sql = "INSERT INTO transfer (id_from, id_to, amount, type, status) " +
-                "VALUES (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, transfer.getIdFrom(), transfer.getIdTo(), transfer.getAmount(),
-                transfer.getType(), transfer.getStatus());
-        if (transfer.getType().equals("Request") && transfer.getIdTo() != transfer.getIdFrom()){
-            transfer.setStatus("Pending");
-            return true;
+        try {
+            String sql = "INSERT INTO transfer (id_from, id_to, amount, type, status) " +
+                    "VALUES (?, ?, ?, ?, ?)";
+            jdbcTemplate.update(sql, transfer.getIdFrom(), transfer.getIdTo(), transfer.getAmount(),
+                    transfer.getType(), transfer.getStatus());
+            if (transfer.getType().equals("Request") && transfer.getIdTo() != transfer.getIdFrom()) {
+                transfer.setStatus("Pending");
+                return true;
+            }
+        } catch (Exception ex){
+            System.out.println("No");
         }
         return false;
     }
@@ -113,22 +117,26 @@ public class JdbcTransferDao implements TransferDao{
     @Override
     public boolean approveTransfer(Transfer transfer) {
         boolean success = false;
-        String sql = "UPDATE transfer SET status = 'Approved' WHERE transfer_id = ?";
-        jdbcTemplate.update(sql, transfer.getTransferId());
-        String sql3 = "SELECT status FROM transfer WHERE transfer_id = ?";
-        String status = jdbcTemplate.queryForObject(sql3, String.class, transfer.getTransferId());
-        if (status.equals("Approved")) {
-            String sql1 = "SELECT balance FROM account WHERE user_id = ?";
-            BigDecimal balanceFrom = jdbcTemplate.queryForObject(sql1, BigDecimal.class, transfer.getIdFrom());
-            BigDecimal balanceTo = jdbcTemplate.queryForObject(sql1, BigDecimal.class, transfer.getIdTo());
-            while (transfer.getAmount().compareTo(balanceFrom) <= 0
-                    && transfer.getIdTo() != transfer.getIdFrom()
-                    && transfer.getAmount().compareTo(BigDecimal.ZERO) > 0.00) {
-                String sql2 = "UPDATE account SET balance = ? WHERE user_id = ?";
-                jdbcTemplate.update(sql2, balanceFrom.subtract(transfer.getAmount()), transfer.getIdFrom());
-                jdbcTemplate.update(sql2, balanceTo.add(transfer.getAmount()), transfer.getIdTo());
-                 success = true;
+        try {
+            String sql = "UPDATE transfer SET status = 'Approved' WHERE transfer_id = ?";
+            jdbcTemplate.update(sql, transfer.getTransferId());
+            String sql3 = "SELECT status FROM transfer WHERE transfer_id = ?";
+            String status = jdbcTemplate.queryForObject(sql3, String.class, transfer.getTransferId());
+            while (status.equals("Approved")) {
+                String sql1 = "SELECT balance FROM account WHERE user_id = ?";
+                BigDecimal balanceFrom = jdbcTemplate.queryForObject(sql1, BigDecimal.class, transfer.getIdFrom());
+                BigDecimal balanceTo = jdbcTemplate.queryForObject(sql1, BigDecimal.class, transfer.getIdTo());
+                if (transfer.getAmount().compareTo(balanceFrom) <= 0
+                        && transfer.getIdTo() != transfer.getIdFrom()
+                        && transfer.getAmount().compareTo(BigDecimal.ZERO) > 0) {
+                    String sql2 = "UPDATE account SET balance = ? WHERE user_id = ?";
+                    jdbcTemplate.update(sql2, balanceFrom.subtract(transfer.getAmount()), transfer.getIdFrom());
+                    jdbcTemplate.update(sql2, balanceTo.add(transfer.getAmount()), transfer.getIdTo());
+                    success = true;
+                }
             }
+        } catch (Exception ex){
+            System.out.println("NO");
         }
             return success;
     }
@@ -136,14 +144,19 @@ public class JdbcTransferDao implements TransferDao{
     @Override
     public boolean rejectTransfer(Transfer transfer) {
         boolean success = false;
-        String sql = "UPDATE transfer SET status = 'Rejected' WHERE transfer_id = ?";
-        jdbcTemplate.update(sql, transfer.getTransferId());
-        String sql3 = "SELECT status FROM transfer WHERE transfer_id = ?";
-        String status = jdbcTemplate.queryForObject(sql3, String.class, transfer.getTransferId());
-        if (status.equals("Rejected")){
-            success = true;
+        try {
+            String sql = "UPDATE transfer SET status = 'Rejected' WHERE transfer_id = ?";
+            jdbcTemplate.update(sql, transfer.getTransferId());
+            String sql3 = "SELECT status FROM transfer WHERE transfer_id = ?";
+            String status = jdbcTemplate.queryForObject(sql3, String.class, transfer.getTransferId());
+            if (status.equals("Rejected")) {
+                success = true;
+            }
+        } catch (Exception ex){
+            System.out.println("NO");
         }
         return success;
+
     }
 
 

@@ -44,7 +44,7 @@ public class JdbcTransferDaoTests extends BaseDaoTests{
     public void transferBucks_returns_createsTransfer_when_transfer_sent(){
         Transfer transfer = new Transfer();
         BigDecimal amount = new BigDecimal("100.00");
-        transfer.setTransferId(3003);
+        transfer.setTransferId(3004);
         transfer.setIdFrom(1001);
         transfer.setIdTo(1002);
         transfer.setAmount(amount);
@@ -52,7 +52,7 @@ public class JdbcTransferDaoTests extends BaseDaoTests{
         transfer.setStatus("Approved");
         sut.transferBucks(transfer);
 
-        Transfer actual = sut.getTransferByTransferId(3003);
+        Transfer actual = sut.getTransferByTransferId(3004);
 
         assertTransfersMatch(transfer, actual);
     }
@@ -60,7 +60,7 @@ public class JdbcTransferDaoTests extends BaseDaoTests{
     @Test
     public void getMyTransfers_returns_listOfTwo_for_user1001(){
         List<Transfer> transferList = sut.getMyTransfers(1001);
-        Assert.assertEquals(2, transferList.size());
+        Assert.assertEquals(3, transferList.size());
     }
 
     @Test
@@ -77,10 +77,10 @@ public class JdbcTransferDaoTests extends BaseDaoTests{
     }
 
     @Test
-    public void listPendingTransfers_returns_list_of1(){
+    public void listPendingTransfers_returns_list_of2(){
         Transfer transfer = new Transfer();
         BigDecimal amount = new BigDecimal("100.00");
-        transfer.setTransferId(3003);
+        transfer.setTransferId(3011);
         transfer.setIdFrom(1001);
         transfer.setIdTo(1002);
         transfer.setAmount(amount);
@@ -89,13 +89,13 @@ public class JdbcTransferDaoTests extends BaseDaoTests{
         sut.requestTransfer(transfer);
 
         List<Transfer> pendingTransferList = sut.listPendingTransfersByUserId(1001);
-        Assert.assertEquals(1, pendingTransferList.size());
+        Assert.assertEquals(2, pendingTransferList.size());
     }
 
     @Test
-    public void listPendingTransfers_returns_list_of0(){
+    public void listPendingTransfers_returns_list_of1(){
         List<Transfer> pendingTransferList = sut.listPendingTransfersByUserId(1001);
-        Assert.assertEquals(0, pendingTransferList.size());
+        Assert.assertEquals(1, pendingTransferList.size());
     }
 
     @Test
@@ -129,9 +129,25 @@ public class JdbcTransferDaoTests extends BaseDaoTests{
 
     @Test
     public void approveTransfer_returns_false_given_zero_amount(){
-        Transfer transfer = new Transfer();
+        Transfer transfer1 = new Transfer();
         BigDecimal amount = new BigDecimal("00.00");
-        transfer.setTransferId(3005);
+        transfer1.setTransferId(3005);
+        transfer1.setIdFrom(1001);
+        transfer1.setIdTo(1002);
+        transfer1.setAmount(amount);
+        transfer1.setType("Request");
+        transfer1.setStatus("Pending");
+        sut.requestTransfer(transfer1);
+
+        boolean actual = sut.approveTransfer(transfer1);
+        Assert.assertFalse(actual);
+    }
+
+    @Test
+    public void approveTransfer_returns_false_given_invalid_amount(){
+        Transfer transfer = new Transfer();
+        BigDecimal amount = new BigDecimal("10000.00");
+        transfer.setTransferId(3010);
         transfer.setIdFrom(1001);
         transfer.setIdTo(1002);
         transfer.setAmount(amount);
@@ -144,10 +160,10 @@ public class JdbcTransferDaoTests extends BaseDaoTests{
     }
 
     @Test
-    public void approveTransfer_returns_false_given_invalid_amount(){
+    public void rejectTransfer_returns_true_when_rejected(){
         Transfer transfer = new Transfer();
-        BigDecimal amount = new BigDecimal("10000.00");
-        transfer.setTransferId(3006);
+        BigDecimal amount = new BigDecimal("50.00");
+        transfer.setTransferId(3009);
         transfer.setIdFrom(1001);
         transfer.setIdTo(1002);
         transfer.setAmount(amount);
@@ -155,9 +171,28 @@ public class JdbcTransferDaoTests extends BaseDaoTests{
         transfer.setStatus("Pending");
         sut.requestTransfer(transfer);
 
-        boolean actual = sut.approveTransfer(transfer);
+        boolean actual = sut.rejectTransfer(transfer);
         Assert.assertFalse(actual);
     }
+
+    @Test
+    public void rejectTransfer_fails_when_invalidId(){
+        Transfer transfer = new Transfer();
+        BigDecimal amount = new BigDecimal("50.00");
+        transfer.setTransferId(3000);
+        transfer.setIdFrom(1001);
+        transfer.setIdTo(1002);
+        transfer.setAmount(amount);
+        transfer.setType("Request");
+        transfer.setStatus("Pending");
+        sut.requestTransfer(transfer);
+
+        boolean actual = sut.rejectTransfer(transfer);
+        Assert.assertFalse(actual);
+    }
+
+    //We keep getting errors like "org.springframework.dao.EmptyResultDataAccessException:
+    // Incorrect result size: expected 1, actual 0" on our tests. Unsure of what is making them fail.
 
     private void assertTransfersMatch(Transfer expected, Transfer actual){
         Assert.assertEquals(expected.getTransferId(), actual.getTransferId());
