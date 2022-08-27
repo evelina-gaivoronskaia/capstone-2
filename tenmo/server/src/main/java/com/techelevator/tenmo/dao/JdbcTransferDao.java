@@ -98,21 +98,24 @@ public class JdbcTransferDao implements TransferDao{
 
     @Override
     public boolean approveTransfer(Transfer transfer) {
+        boolean success = false;
         String sql = "UPDATE transfer SET status = 'Approved' WHERE transfer_id = ?";
         jdbcTemplate.update(sql, transfer.getTransferId());
-        if (transfer.getStatus().equals("Approved")) {
+        String sql3 = "SELECT status FROM transfer WHERE transfer_id = ?";
+        String status = jdbcTemplate.queryForObject(sql3, String.class, transfer.getTransferId());
+        if (status.equals("Approved")) {
             String sql1 = "SELECT balance FROM account WHERE user_id = ?";
             BigDecimal balanceFrom = jdbcTemplate.queryForObject(sql1, BigDecimal.class, transfer.getIdFrom());
             BigDecimal balanceTo = jdbcTemplate.queryForObject(sql1, BigDecimal.class, transfer.getIdTo());
             if (transfer.getAmount().compareTo(balanceFrom) <= 0 &&
-                    transfer.getIdTo() != transfer.getIdFrom() && transfer.getStatus().equals("Approved")) {
+                    transfer.getIdTo() != transfer.getIdFrom() && status.equals("Approved")) {
                 String sql2 = "UPDATE account SET balance = ? WHERE user_id = ?";
                 jdbcTemplate.update(sql2, balanceFrom.subtract(transfer.getAmount()), transfer.getIdFrom());
                 jdbcTemplate.update(sql2, balanceTo.add(transfer.getAmount()), transfer.getIdTo());
-                return true;
+                 success = true;
             }
         }
-        return false;
+            return success;
     }
 
 
