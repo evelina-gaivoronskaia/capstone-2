@@ -3,6 +3,7 @@ package com.techelevator.tenmo.dao;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.security.UserNotActivatedException;
 import org.springframework.boot.autoconfigure.quartz.QuartzProperties;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.relational.core.sql.In;
@@ -32,9 +33,13 @@ public class JdbcAccountDao implements AccountDao{
     @Override
     public BigDecimal requestBalance(int userId) {
         String sql = "SELECT balance FROM account WHERE user_id = ?";
-        BigDecimal balance = jdbcTemplate.queryForObject(sql, BigDecimal.class, userId);
-        if (balance != null){
-            return balance;
+        try {
+            BigDecimal balance = jdbcTemplate.queryForObject(sql, BigDecimal.class, userId);
+            if (balance != null) {
+                return balance;
+            }
+        } catch (Exception ex){
+            return null;
         }
         return null;
     }
@@ -52,6 +57,22 @@ public class JdbcAccountDao implements AccountDao{
         }
         return accountList;
     }
+
+    @Override
+    public int createAccount(int userId) {
+        String sql1 = "INSERT INTO account (user_id, balance) VALUES (?, ?) RETURNING account_id";
+        Account account = new Account();
+        BigDecimal balance = new BigDecimal("1000");
+        Integer accountId = null;
+        try {
+            accountId = jdbcTemplate.queryForObject(sql1, Integer.class,
+                    userId, balance);
+        } catch (DataAccessException ex){
+            return accountId;
+        }
+        return accountId;
+    }
+
 
     private Account mapRowToAccount(SqlRowSet rs){
         Account account = new Account();

@@ -23,13 +23,15 @@ public class JdbcTransferDao implements TransferDao{
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    // completes a transfer w/ approved status
     @Override
     public boolean transferBucks(Transfer transfer) {
         String sql = "SELECT balance FROM account WHERE user_id = ?";
         BigDecimal balanceFrom = jdbcTemplate.queryForObject(sql, BigDecimal.class, transfer.getIdFrom());
         BigDecimal balanceTo = jdbcTemplate.queryForObject(sql, BigDecimal.class, transfer.getIdTo());
         System.out.println(transfer);
-        if (transfer.getAmount().compareTo(balanceFrom) <= 0 && transfer.getIdTo() != transfer.getIdFrom()){
+        if (transfer.getAmount().compareTo(balanceFrom) <= 0 &&
+                transfer.getIdTo() != transfer.getIdFrom() && transfer.getStatus().equals("Approved")){
             String sql1 = "UPDATE account SET balance = ? WHERE user_id = ?";
             jdbcTemplate.update(sql1, balanceFrom.subtract(transfer.getAmount()), transfer.getIdFrom());
             jdbcTemplate.update(sql1, balanceTo.add(transfer.getAmount()), transfer.getIdTo());
@@ -72,10 +74,26 @@ public class JdbcTransferDao implements TransferDao{
             if (results.next()) {
                 transfer = mapToRowTransfer(results);
             }
+            if (transfer.getTransferId() == 0){
+                return null;
+            }
         } catch (DataAccessException ex){
             System.out.println("nope");
         }
         return transfer;
+    }
+
+    @Override
+    public boolean requestTransfer(Transfer transfer) {
+        if (transfer.getType().equals("Request")){
+            transfer.setStatus("Pending");
+            String sql = "INSERT INTO transfer (id_from, id_to, amount, type, status) " +
+                    "VALUES (?, ?, ?, ?, ?) RETURNING transfer_id";
+            jdbcTemplate.update(sql, transfer.getIdFrom(), transfer.getIdTo(), transfer.getAmount(),
+                    transfer.getType(), transfer.getStatus());
+            return true;
+        }
+        return false;
     }
 
     private Transfer mapToRowTransfer(SqlRowSet srs){

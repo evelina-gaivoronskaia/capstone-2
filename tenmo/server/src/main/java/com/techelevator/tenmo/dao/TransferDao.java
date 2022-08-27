@@ -12,4 +12,5 @@ public interface TransferDao {
 
     Transfer getTransferByTransferId(int transferId);
 
+    boolean requestTransfer(Transfer transfer);
 }

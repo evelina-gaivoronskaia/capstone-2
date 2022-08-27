@@ -34,12 +34,13 @@ public class JdbcAccountDaoTests extends BaseDaoTests{
         Assert.assertEquals(expected, actual);
     }
 
-   /* @Test
+    @Test
     public void requestBalance_returns_null_given_unknownId(){
         BigDecimal actual = sut.requestBalance(1000);
         Assert.assertNull(actual);
     }
-*/
+
+
     @Test
     public void getAllAccounts_return_list_ofPopulatedAccounts(){
         List<Account> actual = sut.getAllAccounts();

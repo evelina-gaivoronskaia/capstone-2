@@ -12,4 +12,6 @@ public interface AccountDao {
     BigDecimal requestBalance(int userId);
 
     List<Account> getAllAccounts();
+
+    int createAccount(int userId);
 }

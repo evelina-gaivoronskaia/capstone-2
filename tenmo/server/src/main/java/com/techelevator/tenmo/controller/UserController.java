@@ -37,6 +37,10 @@ public class UserController {
         return accountDao.getAllAccounts();
     }
 
+    @RequestMapping(path = "/account", method = RequestMethod.POST)
+    public int createAccount(int userId){
+        return accountDao.createAccount(userId);
+    }
 }
 
 
