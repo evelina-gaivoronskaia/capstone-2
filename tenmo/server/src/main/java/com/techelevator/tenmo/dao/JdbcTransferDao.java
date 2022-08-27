@@ -31,7 +31,9 @@ public class JdbcTransferDao implements TransferDao{
         BigDecimal balanceTo = jdbcTemplate.queryForObject(sql, BigDecimal.class, transfer.getIdTo());
         System.out.println(transfer);
         if (transfer.getAmount().compareTo(balanceFrom) <= 0 &&
-                transfer.getIdTo() != transfer.getIdFrom() && transfer.getStatus().equals("Approved")){
+                transfer.getIdTo() != transfer.getIdFrom()
+                && transfer.getStatus().equals("Approved")
+                && transfer.getAmount().compareTo(BigDecimal.ZERO) > 0){
             String sql1 = "UPDATE account SET balance = ? WHERE user_id = ?";
             jdbcTemplate.update(sql1, balanceFrom.subtract(transfer.getAmount()), transfer.getIdFrom());
             jdbcTemplate.update(sql1, balanceTo.add(transfer.getAmount()), transfer.getIdTo());
@@ -64,7 +66,19 @@ public class JdbcTransferDao implements TransferDao{
         return myTransfers;
     }
 
-   @Override
+    @Override
+    public List<Transfer> listPendingTransfersByUserId(int userId) {
+        List<Transfer> allTransfersByUserId = getMyTransfers(userId);
+        List<Transfer> pendingTransfers = new ArrayList<>();
+        for (int i = 0; i < allTransfersByUserId.size(); i++) {
+            if (allTransfersByUserId.get(i).getStatus().equals("Pending")){
+                pendingTransfers.add(allTransfersByUserId.get(i));
+            }
+        }
+        return pendingTransfers;
+    }
+
+    @Override
     public Transfer getTransferByTransferId(int transferId) {
        Transfer transfer = new Transfer();
        String sql = "SELECT transfer_id, id_from, id_to, amount, type, status FROM transfer " +
@@ -89,7 +103,7 @@ public class JdbcTransferDao implements TransferDao{
                 "VALUES (?, ?, ?, ?, ?)";
         jdbcTemplate.update(sql, transfer.getIdFrom(), transfer.getIdTo(), transfer.getAmount(),
                 transfer.getType(), transfer.getStatus());
-        if (transfer.getType().equals("Request")){
+        if (transfer.getType().equals("Request") && transfer.getIdTo() != transfer.getIdFrom()){
             transfer.setStatus("Pending");
             return true;
         }
@@ -107,8 +121,9 @@ public class JdbcTransferDao implements TransferDao{
             String sql1 = "SELECT balance FROM account WHERE user_id = ?";
             BigDecimal balanceFrom = jdbcTemplate.queryForObject(sql1, BigDecimal.class, transfer.getIdFrom());
             BigDecimal balanceTo = jdbcTemplate.queryForObject(sql1, BigDecimal.class, transfer.getIdTo());
-            if (transfer.getAmount().compareTo(balanceFrom) <= 0 &&
-                    transfer.getIdTo() != transfer.getIdFrom() && status.equals("Approved")) {
+            while (transfer.getAmount().compareTo(balanceFrom) <= 0
+                    && transfer.getIdTo() != transfer.getIdFrom()
+                    && transfer.getAmount().compareTo(BigDecimal.ZERO) > 0.00) {
                 String sql2 = "UPDATE account SET balance = ? WHERE user_id = ?";
                 jdbcTemplate.update(sql2, balanceFrom.subtract(transfer.getAmount()), transfer.getIdFrom());
                 jdbcTemplate.update(sql2, balanceTo.add(transfer.getAmount()), transfer.getIdTo());
@@ -118,6 +133,18 @@ public class JdbcTransferDao implements TransferDao{
             return success;
     }
 
+    @Override
+    public boolean rejectTransfer(Transfer transfer) {
+        boolean success = false;
+        String sql = "UPDATE transfer SET status = 'Rejected' WHERE transfer_id = ?";
+        jdbcTemplate.update(sql, transfer.getTransferId());
+        String sql3 = "SELECT status FROM transfer WHERE transfer_id = ?";
+        String status = jdbcTemplate.queryForObject(sql3, String.class, transfer.getTransferId());
+        if (status.equals("Rejected")){
+            success = true;
+        }
+        return success;
+    }
 
 
     private Transfer mapToRowTransfer(SqlRowSet srs){

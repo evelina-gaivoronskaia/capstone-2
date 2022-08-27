@@ -45,4 +45,16 @@ public class TransferController {
     public boolean approveTransfer(@RequestBody Transfer transfer){
         return transferDao.approveTransfer(transfer);
     }
+
+    @RequestMapping(path = "/transfer/pending", method = RequestMethod.GET)
+    public List<Transfer> listPendingTransfersByUserId(Principal principal){
+        int userId = userDao.findIdByUsername(principal.getName());
+        return transferDao.listPendingTransfersByUserId(userId);
+    }
+
+    @RequestMapping(path = "/transfer/reject", method = RequestMethod.POST)
+    public boolean rejectTransfer(@RequestBody Transfer transfer){
+        return transferDao.rejectTransfer(transfer);
+    }
+
 }

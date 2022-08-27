@@ -10,9 +10,13 @@ public interface TransferDao {
 
     List<Transfer> getMyTransfers(int userId);
 
+    List<Transfer> listPendingTransfersByUserId(int userId);
+
     Transfer getTransferByTransferId(int transferId);
 
     boolean requestTransfer(Transfer transfer);
 
     boolean approveTransfer(Transfer transfer);
+
+    boolean rejectTransfer(Transfer transfer);
 }

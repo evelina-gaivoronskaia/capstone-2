@@ -76,6 +76,89 @@ public class JdbcTransferDaoTests extends BaseDaoTests{
         Assert.assertNull(actual);
     }
 
+    @Test
+    public void listPendingTransfers_returns_list_of1(){
+        Transfer transfer = new Transfer();
+        BigDecimal amount = new BigDecimal("100.00");
+        transfer.setTransferId(3003);
+        transfer.setIdFrom(1001);
+        transfer.setIdTo(1002);
+        transfer.setAmount(amount);
+        transfer.setType("send");
+        transfer.setStatus("Pending");
+        sut.requestTransfer(transfer);
+
+        List<Transfer> pendingTransferList = sut.listPendingTransfersByUserId(1001);
+        Assert.assertEquals(1, pendingTransferList.size());
+    }
+
+    @Test
+    public void listPendingTransfers_returns_list_of0(){
+        List<Transfer> pendingTransferList = sut.listPendingTransfersByUserId(1001);
+        Assert.assertEquals(0, pendingTransferList.size());
+    }
+
+    @Test
+    public void requestTransfer_returns_false_given_invalidId(){
+        Transfer transfer = new Transfer();
+        BigDecimal amount = new BigDecimal("100.00");
+        transfer.setTransferId(3003);
+        transfer.setIdFrom(1001);
+        transfer.setIdTo(1001);
+        transfer.setAmount(amount);
+        transfer.setType("Request");
+        transfer.setStatus("Pending");
+
+        boolean actual = sut.requestTransfer(transfer);
+        Assert.assertFalse(actual);
+    }
+    @Test
+    public void requestTransfer_returns_true_given_validId(){
+        Transfer transfer = new Transfer();
+        BigDecimal amount = new BigDecimal("100.00");
+        transfer.setTransferId(3003);
+        transfer.setIdFrom(1001);
+        transfer.setIdTo(1002);
+        transfer.setAmount(amount);
+        transfer.setType("Request");
+        transfer.setStatus("Pending");
+
+        boolean actual = sut.requestTransfer(transfer);
+        Assert.assertTrue(actual);
+    }
+
+    @Test
+    public void approveTransfer_returns_false_given_zero_amount(){
+        Transfer transfer = new Transfer();
+        BigDecimal amount = new BigDecimal("00.00");
+        transfer.setTransferId(3005);
+        transfer.setIdFrom(1001);
+        transfer.setIdTo(1002);
+        transfer.setAmount(amount);
+        transfer.setType("Request");
+        transfer.setStatus("Pending");
+        sut.requestTransfer(transfer);
+
+        boolean actual = sut.approveTransfer(transfer);
+        Assert.assertFalse(actual);
+    }
+
+    @Test
+    public void approveTransfer_returns_false_given_invalid_amount(){
+        Transfer transfer = new Transfer();
+        BigDecimal amount = new BigDecimal("10000.00");
+        transfer.setTransferId(3006);
+        transfer.setIdFrom(1001);
+        transfer.setIdTo(1002);
+        transfer.setAmount(amount);
+        transfer.setType("Request");
+        transfer.setStatus("Pending");
+        sut.requestTransfer(transfer);
+
+        boolean actual = sut.approveTransfer(transfer);
+        Assert.assertFalse(actual);
+    }
+
     private void assertTransfersMatch(Transfer expected, Transfer actual){
         Assert.assertEquals(expected.getTransferId(), actual.getTransferId());
         Assert.assertEquals(expected.getAmount(), actual.getAmount());
